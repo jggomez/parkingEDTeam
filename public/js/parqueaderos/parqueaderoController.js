@@ -94,7 +94,7 @@ $(() => {
 
   $('#btnParqueaderosLibres').click(async () => {
     $('#tituloParqueadero').text('Parqueaderos Libres');
-    const user = null: //firebase.auth().currentUser;
+    const user = null; //firebase.auth().currentUser;
     if (user) {
       // TODO
     } else {

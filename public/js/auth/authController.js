@@ -19,7 +19,7 @@ $(() => {
     const resp = await objAuth.autEmailPass(email, password);
     if (resp) {
       $('#avatar').attr('src', 'imagenes/usuario_auth.png')
-      Materialize.toast(`Bienvenido ${result.user.displayName}`, 5000)
+      Materialize.toast(`Bienvenido ${resp.user.displayName}`, 5000)
     } else {
       Materialize.toast(
         `Por favor realiza la verificación de la cuenta`,
@@ -47,7 +47,7 @@ $(() => {
 
   $('#avatar').click(async () => {
     try {
-      // TODO signOut
+      firebase.auth().signOut();
       $('#avatar').attr('src', 'imagenes/usuario.png');
       Materialize.toast(`SignOut correcto`, 4000);
 
@@ -60,7 +60,7 @@ $(() => {
   // Evento boton inicio sesion
   $('#btnInicioSesion').click(async () => {
     try {
-      const user = null; // TODO current user
+      const user = await firebase.auth().currentUser;
       if (user) {
         $('#btnInicioSesion').text('Iniciar Sesión');
         await firebase.auth().signOut();
@@ -78,7 +78,7 @@ $(() => {
   })
 
   // Firebase observador del cambio de estado de auth
-  /*//TODO Cambio de estado(user => {
+  firebase.auth().onAuthStateChanged(user => {    
     if (user) {
       $('#btnInicioSesion').text('Salir')
       if (user.photoURL) {
@@ -90,7 +90,7 @@ $(() => {
       $('#btnInicioSesion').text('Iniciar Sesión')
       $('#avatar').attr('src', 'imagenes/usuario.png')
     }
-  })*/
+  })
 
   $('#btnRegistrarse').click(() => {
     $('#modalSesion').modal('close')
