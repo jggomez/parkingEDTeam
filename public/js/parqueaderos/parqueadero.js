@@ -1,7 +1,8 @@
 class Parqueadero {
 
   constructor() {
-    // TODO
+    this.db = firebase.firestore();
+
   }
 
   async crearEntrada(
@@ -13,7 +14,27 @@ class Parqueadero {
     observacion,
     imagenLink) {
     try {
-      // TODO
+      const refDoc = await this.db
+        .collection('entradas')
+        .add({
+          uid: uid,
+          idparqueadero: idParqueadero,
+          nombrecliente: nombreCliente,
+          celularcliente: celularCliente,
+          placa: placa,
+          observacion: observacion,
+          imagenlink: imagenLink,
+          fecha: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+      await this.db
+        .collection('parqueaderos')
+        .doc(idParqueadero)
+        .update({
+          "libre": false
+        });
+
+      return refDoc.id;
 
     } catch (error) {
       console.error(`Error creando la entrada => ${error}`)
@@ -36,7 +57,54 @@ class Parqueadero {
 
   async consultarTodosParquedaderos(fntCallBack) {
     try {
-      // TODO
+      await this.db
+        .collection('parqueaderos')
+        .orderBy('nombre', 'asc')
+        .onSnapshot(parqueaderos => {
+
+          $('#parqueaderos').empty();
+
+          parqueaderos.forEach(async parqueadero => {
+            const parqueaderodata = parqueadero.data();
+
+            console.log(parqueaderodata);
+
+            const entradasParqueadero = await this.db
+              .collection('entradas')
+              .where('idparqueadero', '==', parqueadero.id)
+              .orderBy('fecha', 'desc')
+              .limit(1)
+              .get();
+
+            if (entradasParqueadero.empty || parqueaderodata.libre === true) {
+              fntCallBack({
+                nombreParqueadero: parqueadero.nombre,
+                libre: parqueaderodata.libre,
+                id: parqueadero.id
+              });
+            } else {
+              const entrada = entradasParqueadero.docs[0].data();
+              console.log("entrada")
+              console.log(entrada)
+              fntCallBack({
+                nombreParqueadero: parqueadero.nombre,
+                libre: parqueaderodata.libre,
+                id: parqueadero.id,
+                nombreCliente: entrada.nombrecliente,
+                celularCliente: entrada.celularcliente,
+                placa: entrada.placa,
+                observacion: entrada.observacion,
+                imagenLink: entrada.imagenlink,
+                fecha: entrada.fecha,
+                idEntrada: entradasParqueadero.docs[0].id
+              })
+            }
+
+          })
+
+
+        });
+
     } catch (error) {
       console.error(`Error consultando todos los parqueaderos => ${error}`)
     }
@@ -44,7 +112,25 @@ class Parqueadero {
 
   async consultarParqueaderoLibres(fntCallBack) {
     try {
-      // TODO
+      const parqueaderos = await this.db
+        .collection('parqueaderos')
+        .where('libre', '==', true)
+        .orderBy('nombre', 'asc')
+        .get();
+
+      const lst = [];
+
+      parqueaderos.forEach(parqueadero => {
+        const parqueaderodata = parqueadero.data();
+        lst.push({
+          nombreParqueadero: parqueaderodata.nombre,
+          libre: parqueaderodata.libre,
+          id: parqueadero.id
+        })
+      });
+
+      return lst;
+
     } catch (error) {
       console.error(`Error consultando todos los parqueaderos libres => ${error}`)
     }

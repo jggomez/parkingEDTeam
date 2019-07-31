@@ -14,7 +14,7 @@ $(() => {
     sessionStorage.setItem('imgNewEntrada', null)
     sessionStorage.setItem('idParqueadero', $(this).data('id'))
 
-    const user = null; //firebase.auth().currentUser
+    const user = firebase.auth().currentUser
 
     if (user == null) {
       Materialize.toast(`Para crear la entrada debes estar autenticado`, 4000)
@@ -51,14 +51,17 @@ $(() => {
 
   $('#btnTodoParqueaderos').click(() => {
     $('#tituloParqueadero').text('Todos los Parqueaderos');
-    obtenerTodosParqueaderos();
+    // TODO : parqueadero consulte una sola vez todos los parqueaderos
   })
 
   $('#btnParqueaderoLibre').click(async () => {
     $('#tituloParqueadero').text('Parqueaderos Libres');
     const parqueaderoObj = new Parqueadero();
     $('#parqueaderos').empty();
-    await parqueaderoObj.consultarParqueaderoLibres(mostrarParqueadero);
+    const lst = await parqueaderoObj.consultarParqueaderoLibres(mostrarParqueadero);
+    lst.forEach(parqueadero => {
+      mostrarParqueadero(parqueadero);
+    })
   })
 
   async function obtenerTodosParqueaderos() {
