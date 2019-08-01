@@ -67,8 +67,6 @@ class Parqueadero {
           parqueaderos.forEach(async parqueadero => {
             const parqueaderodata = parqueadero.data();
 
-            console.log(parqueaderodata);
-
             const entradasParqueadero = await this.db
               .collection('entradas')
               .where('idparqueadero', '==', parqueadero.id)
@@ -78,7 +76,7 @@ class Parqueadero {
 
             if (entradasParqueadero.empty || parqueaderodata.libre === true) {
               fntCallBack({
-                nombreParqueadero: parqueadero.nombre,
+                nombreParqueadero: parqueaderodata.nombre,
                 libre: parqueaderodata.libre,
                 id: parqueadero.id
               });
@@ -87,7 +85,7 @@ class Parqueadero {
               console.log("entrada")
               console.log(entrada)
               fntCallBack({
-                nombreParqueadero: parqueadero.nombre,
+                nombreParqueadero: parqueaderodata.nombre,
                 libre: parqueaderodata.libre,
                 id: parqueadero.id,
                 nombreCliente: entrada.nombrecliente,
