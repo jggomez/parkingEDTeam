@@ -93,7 +93,7 @@ class Parqueadero {
         .orderBy('nombre', 'asc')
         .get();
 
-        this.consultarEntradasDeParqueaderos(parqueaderos, fntCallBack);
+      this.consultarEntradasDeParqueaderos(parqueaderos, fntCallBack);
     } catch (error) {
       console.error(`Error consultando todos los parqueaderos => ${error}`)
     }
@@ -165,7 +165,31 @@ class Parqueadero {
   }
 
   subirImagenPost(file, uid) {
-    // TODO
+    const refStorage = firebase
+      .storage()
+      .ref(`imgsParqueaderos/${uid}/${file.name}`);
+    const task = refStorage.put(file);
+
+    task.on(
+      'state_changed',
+      snapshot => {
+        const porcentaje = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+        $('.determinate').attr('style', `width: ${porcentaje}%`);
+      },
+      err => {
+        Materialize.toast(`Error subiendo el archivo => ${err.message}`, 4000);
+      },
+      async () => {
+        try {
+          const url = await task.snapshot.ref.getDownloadURL();
+          sessionStorage.setItem('imgNewEntrada', url);
+        } catch (error) {
+          console.error(error);
+          Materialize.toast(`Error obteniendo la url de descarga => ${error.message}`, 4000);
+        }
+      }
+    )
+
   }
 
 
