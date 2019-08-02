@@ -35,7 +35,7 @@ $(() => {
     console.log($(this).data('identrada'));
 
     // TODO calcular costo
-    const costo = 0;
+    const costo = 2;
 
     sessionStorage.setItem('costo', costo);
     sessionStorage.setItem('idEntrada', $(this).data('identrada'));
@@ -44,14 +44,15 @@ $(() => {
     const fechaActual = Utilidad.obtenerFechaHoraActual();
 
     $('#lblHoraSalida').html(`Hora Salida: ${fechaActual}`);
-    $('#lblCosto').html(`Costo: $ ${costo} pesos`);
+    $('#lblCosto').html(`Costo: $ ${costo} USD`);
 
     $('#modalSalida').modal('open');
   })
 
   $('#btnTodoParqueaderos').click(() => {
     $('#tituloParqueadero').text('Todos los Parqueaderos');
-    // TODO : parqueadero consulte una sola vez todos los parqueaderos
+    const objParqueadero = new Parqueadero();
+    objParqueadero.consultarTodosParquedaderosUnaVez(mostrarParqueadero);
   })
 
   $('#btnParqueaderoLibre').click(async () => {
@@ -94,16 +95,6 @@ $(() => {
     $('#parqueaderos').append(parqueaderoHtml);
 
   }
-
-  $('#btnParqueaderosLibres').click(async () => {
-    $('#tituloParqueadero').text('Parqueaderos Libres');
-    const user = null; //firebase.auth().currentUser;
-    if (user) {
-      // TODO
-    } else {
-      Materialize.toast(`Debes estar autenticado para ver los parqueaderos libres`, 4000)
-    }
-  })
 
   $('#btnRegistroEntrada').click(async () => {
     const parqueaderoObj = new Parqueadero();

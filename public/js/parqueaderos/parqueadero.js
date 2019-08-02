@@ -56,7 +56,7 @@ class Parqueadero {
             fechaSalida: fechaSalida,
             costo: costo
           }
-        });
+        }, { merge: true });
 
       await this.db
         .collection('parqueaderos')
@@ -78,51 +78,64 @@ class Parqueadero {
         .collection('parqueaderos')
         .orderBy('nombre', 'asc')
         .onSnapshot(parqueaderos => {
-
-          $('#parqueaderos').empty();
-
-          parqueaderos.forEach(async parqueadero => {
-            const parqueaderodata = parqueadero.data();
-
-            const entradasParqueadero = await this.db
-              .collection('entradas')
-              .where('idparqueadero', '==', parqueadero.id)
-              .orderBy('fecha', 'desc')
-              .limit(1)
-              .get();
-
-            if (entradasParqueadero.empty || parqueaderodata.libre === true) {
-              fntCallBack({
-                nombreParqueadero: parqueaderodata.nombre,
-                libre: parqueaderodata.libre,
-                id: parqueadero.id
-              });
-            } else {
-              const entrada = entradasParqueadero.docs[0].data();
-              console.log("entrada")
-              console.log(entrada)
-              fntCallBack({
-                nombreParqueadero: parqueaderodata.nombre,
-                libre: parqueaderodata.libre,
-                id: parqueadero.id,
-                nombreCliente: entrada.nombrecliente,
-                celularCliente: entrada.celularcliente,
-                placa: entrada.placa,
-                observacion: entrada.observacion,
-                imagenLink: entrada.imagenlink,
-                fecha: entrada.fecha,
-                idEntrada: entradasParqueadero.docs[0].id
-              })
-            }
-
-          })
-
-
+          this.consultarEntradasDeParqueaderos(parqueaderos, fntCallBack);
         });
 
     } catch (error) {
       console.error(`Error consultando todos los parqueaderos => ${error}`)
     }
+  }
+
+  async consultarTodosParquedaderosUnaVez(fntCallBack) {
+    try {
+      const parqueaderos = await this.db
+        .collection('parqueaderos')
+        .orderBy('nombre', 'asc')
+        .get();
+
+        this.consultarEntradasDeParqueaderos(parqueaderos, fntCallBack);
+    } catch (error) {
+      console.error(`Error consultando todos los parqueaderos => ${error}`)
+    }
+  }
+
+  async consultarEntradasDeParqueaderos(parqueaderos, fntCallBack) {
+    $('#parqueaderos').empty();
+
+    parqueaderos.forEach(async parqueadero => {
+      const parqueaderodata = parqueadero.data();
+
+      const entradasParqueadero = await this.db
+        .collection('entradas')
+        .where('idparqueadero', '==', parqueadero.id)
+        .orderBy('fecha', 'desc')
+        .limit(1)
+        .get();
+
+      if (entradasParqueadero.empty || parqueaderodata.libre === true) {
+        fntCallBack({
+          nombreParqueadero: parqueaderodata.nombre,
+          libre: parqueaderodata.libre,
+          id: parqueadero.id
+        });
+      } else {
+        const entrada = entradasParqueadero.docs[0].data();
+        fntCallBack({
+          nombreParqueadero: parqueaderodata.nombre,
+          libre: parqueaderodata.libre,
+          id: parqueadero.id,
+          nombreCliente: entrada.nombrecliente,
+          celularCliente: entrada.celularcliente,
+          placa: entrada.placa,
+          observacion: entrada.observacion,
+          imagenLink: entrada.imagenlink,
+          fecha: entrada.fecha,
+          idEntrada: entradasParqueadero.docs[0].id
+        })
+      }
+
+    })
+
   }
 
   async consultarParqueaderoLibres(fntCallBack) {
