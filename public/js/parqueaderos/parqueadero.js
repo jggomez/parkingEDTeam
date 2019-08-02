@@ -48,7 +48,24 @@ class Parqueadero {
     idParqueadero) {
     try {
 
-      // TODO
+      await this.db
+        .collection('entradas')
+        .doc(idEntrada)
+        .set({
+          salida: {
+            fechaSalida: fechaSalida,
+            costo: costo
+          }
+        });
+
+      await this.db
+        .collection('parqueaderos')
+        .doc(idParqueadero)
+        .update({
+          "libre": true
+        });
+
+      return true;
 
     } catch (error) {
       console.error(`Error creando la salida => ${error}`)
